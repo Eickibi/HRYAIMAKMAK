@@ -167,6 +167,38 @@ def index():
     )
 
 
+@app.route("/api/employees", methods=["POST"])
+def add_employee():
+    data = request.get_json(silent=True) or {}
+    row = normalize_row(data)
+    if not row["id"]:
+        row["id"] = str(1000000000 + random.randint(10000, 99999))
+    if not row["name"]:
+        return jsonify({"ok": False, "message": "กรุณากรอกชื่อพนักงาน"}), 400
+    employees = load_employees()
+    if any(str(e.get("id")) == str(row["id"]) for e in employees):
+        return jsonify({"ok": False, "message": "รหัสพนักงานซ้ำ"}), 400
+    employees.append(row)
+    save_employees(employees)
+    return jsonify({"ok": True, "employee": row})
+
+
+@app.route("/api/employees/<employee_id>", methods=["DELETE"])
+def delete_employee(employee_id):
+    employees = load_employees()
+    new_employees = [e for e in employees if str(e.get("id")) != str(employee_id)]
+    if len(new_employees) == len(employees):
+        return jsonify({"ok": False, "message": "ไม่พบพนักงาน"}), 404
+    save_employees(new_employees)
+    return jsonify({"ok": True})
+
+
+@app.route("/api/employees", methods=["DELETE"])
+def delete_all_employees():
+    save_employees([])
+    return jsonify({"ok": True})
+
+
 @app.route("/upload", methods=["POST"])
 def upload():
     file = request.files.get("file")
