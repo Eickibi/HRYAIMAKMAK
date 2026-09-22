@@ -13,7 +13,7 @@ app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
-DATA_FILE = "/tmp/employees.json" if os.environ.get("VERCEL") else os.path.join(BASE_DIR, "data", "employees.json")
+DATA_FILE = os.path.join(BASE_DIR, "data", "employees.json")
 
 FIELD_MAP = {
     "empid":"id","id":"id","employee_name":"name","name":"name","department":"department","dept":"department",
@@ -64,10 +64,10 @@ def supabase_request(method,path,params=None,body=None):
 def load_employees():
     if db_enabled(): return supabase_request("GET","employees",{"select":"*","order":"id"})
     if not os.path.exists(DATA_FILE):
-        return [] if os.environ.get("VERCEL") else generate_sample_data()
+        return generate_sample_data()
     try:
         with open(DATA_FILE,encoding="utf-8") as f: return json.load(f)
-    except Exception: return [] if os.environ.get("VERCEL") else generate_sample_data()
+    except Exception: return generate_sample_data()
 
 def save_employees(employees):
     if db_enabled():
@@ -193,4 +193,4 @@ def api_employees():
 def api_sample():
     rows=generate_sample_data(); return jsonify({"ok":True,"count":len(rows)})
 
-if __name__=="__main__": app.run(debug=True)
+if __name__=="__main__":\n    port = int(os.environ.get("PORT", "5000"))\n    app.run(host="0.0.0.0", port=port, debug=True)
