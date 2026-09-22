@@ -1,0 +1,26 @@
+Employee_Name,EmpID,Department,Position,ManagerName,EmploymentStatus,Sex,MaritalDesc,RaceDesc,State,DateofHire,DateofTermination,PerformanceScore,EngagementSurvey,EmpSatisfaction,PayRate,RecruitmentSource,SpecialProjectsCount,DaysLateLast30
+"Gonzalez, David",1000000000,Software Engineering,Senior Software Engineer,Lynn Daneault,Leave of Absence,F,Married,White,CT,28-10-11,,Exceeds,2.11,4,73.39,Employee Referral,4,3
+"Gonzalez, Michael",1000000001,IT/IS,Network Engineer,John Smith,Active,F,Single,Hispanic,NH,11-03-21,,Fully Meets,2.98,3,16.85,Employee Referral,5,4
+"Bunbury, Michael",1000000002,Software Engineering,Software Engineer,Lynn Daneault,Leave of Absence,F,Single,Hispanic,CT,13-08-17,,Fully Meets,4.2,4,65.65,Employee Referral,3,0
+"Bunbury, David",1000000003,Sales,Sales Representative,David Stanley,Active,M,Divorced,Hispanic,NH,21-09-18,,Exceeds,3.96,4,37.37,Employee Referral,2,0
+"Cockel, James",1000000004,Production,Production Technician II,Peter Monroe,Active,M,Married,Asian,CT,19-11-10,,Exceeds,3.64,4,76.71,Employee Referral,6,0
+"Ferguson, Jessica",1000000005,Admin Offices,Administrative Assistant,David Stanley,Active,M,Single,Hispanic,NH,26-03-18,,Fully Meets,4.48,1,30.5,Employee Referral,3,0
+"Bunbury, Jessica",1000000006,Production,Production Technician I,David Stanley,Active,M,Single,White,MA,15-09-20,,Needs Improvement,3.04,1,28.12,Employee Referral,5,5
+"Jacobi, Susan",1000000007,Software Engineering,Senior Software Engineer,Peter Monroe,Active,M,Married,Black or African American,MA,04-02-10,,Fully Meets,4.93,2,69.58,Employee Referral,3,4
+"Stanley, Susan",1000000008,Production,Production Technician I,David Stanley,Active,M,Married,Asian,MA,03-07-22,,Needs Improvement,3.31,4,18.32,Employee Referral,6,0
+"Bunbury, Michael",1000000009,Sales,Sales Representative,Lynn Daneault,Active,M,Married,Black or African American,NH,26-03-15,,Fully Meets,1.5,1,57.97,Employee Referral,6,3
+"Buck, Susan",1000000010,Sales,Area Sales Manager,David Stanley,Voluntarily Terminated,F,Divorced,Asian,NH,20-04-21,,Fully Meets,4.22,5,30.18,Employee Referral,4,2
+"Gonzalez, Michael",1000000011,Software Engineering,Software Engineer,David Stanley,Voluntarily Terminated,F,Married,Asian,MA,08-01-16,,PIP,2.96,1,64.12,Employee Referral,2,0
+"Jacobi, Hannah",1000000012,Production,Production Technician II,Lynn Daneault,Leave of Absence,M,Single,Hispanic,MA,14-10-19,,PIP,2.39,5,73.75,Employee Referral,4,2
+"Riordan, Hannah",1000000013,Admin Offices,Accountant,Peter Monroe,Voluntarily Terminated,F,Single,Asian,CT,20-04-10,,Exceeds,3.86,2,70.21,Employee Referral,3,0
+"Cockel, Susan",1000000014,Production,Production Technician II,John Smith,Active,M,Married,Hispanic,NH,20-04-11,,Fully Meets,2.47,2,52.23,Employee Referral,1,4
+"Riordan, Michael",1000000015,Sales,Sales Representative,Peter Monroe,Leave of Absence,F,Single,Hispanic,NH,21-03-11,,Exceeds,2.8,5,74.16,Employee Referral,6,4
+"Riordan, Maria",1000000016,Production,Production Technician II,David Stanley,Voluntarily Terminated,M,Single,Asian,MA,25-09-12,,Fully Meets,2.08,4,42.07,Employee Referral,3,2
+"Riordan, Hannah",1000000017,Software Engineering,Senior Software Engineer,David Stanley,Leave of Absence,M,Single,White,NH,15-08-11,,Exceeds,3.22,2,18.87,Employee Referral,6,0
+"Stanley, James",1000000018,Production,Production Technician II,Peter Monroe,Leave of Absence,F,Divorced,Hispanic,MA,04-11-13,,Fully Meets,4.13,1,20.48,Employee Referral,5,4
+"Stanley, Jessica",1000000019,IT/IS,IT Support,Lynn Daneault,Leave of Absence,M,Single,Black or African American,NH,08-08-21,,Fully Meets,2.31,5,72.82,Employee Referral,2,2
+"Stanley, Edward",1000000020,Software Engineering,Senior Software Engineer,Peter Monroe,Leave of Absence,M,Single,White,MA,27-10-20,,Fully Meets,3.66,5,75.84,Employee Referral,3,5
+"Stanley, Hannah",1000000021,Admin Offices,Accountant,Peter Monroe,Leave of Absence,M,Married,Hispanic,MA,25-03-13,,Fully Meets,2.16,3,46.68,Employee Referral,2,3
+"Riordan, Susan",1000000022,Admin Offices,Administrative Assistant,Peter Monroe,Leave of Absence,M,Single,Black or African American,MA,23-09-17,,Fully Meets,2.35,4,74.05,Employee Referral,6,5
+"Bunbury, Susan",1000000023,Sales,Area Sales Manager,Peter Monroe,Leave of Absence,M,Single,Asian,NH,26-01-20,,Fully Meets,4.6,2,41.77,Employee Referral,3,1
+"Riordan, David",1000000024,Sales,Sales Representative,Lynn Daneault,Voluntarily Terminated,F,Divorced,Asian,MA,26-02-19,,PIP,4.2,2,26.46,Employee Referral,6,2

@@ -1,10 +1,10 @@
-# ระบบแดชบอร์ดข้อมูลนักศึกษา (Flask)
+# ระบบแดชบอร์ดข้อมูลพนักงาน (Flask, HR)
 
 เว็บแอปพลิเคชันตามโจทย์งานแลป:
 - สร้าง web application ด้วย Flask
-- อัปโหลดข้อมูลด้วยไฟล์ CSV ที่กำหนดรูปแบบไว้
+- อัปโหลดข้อมูลด้วยไฟล์ที่กำหนด (CSV/TSV เช่น `HR_DATA.txt`)
 - มีหน้าแดชบอร์ด (สถิติ + กราฟ)
-- กรองข้อมูลบางส่วนผ่าน API endpoint (`/api/students`) — ทำหน้าที่เป็น Module กรองข้อมูล
+- กรองข้อมูลบางส่วนผ่าน API endpoint (`/api/employees`) — ทำหน้าที่เป็น Module กรองข้อมูล
 - พร้อม deploy ขึ้น Vercel
 
 ## โครงสร้างไฟล์
@@ -20,7 +20,8 @@ flask-app/
     style.css          สไตล์
     app.js             เรียก API, วาดกราฟ, กรองตาราง (ฝั่ง client)
   data/
-    sample_students.csv  ไฟล์ตัวอย่างสำหรับทดสอบอัปโหลด
+    HR_DATA.txt        ไฟล์ข้อมูลพนักงานจริง (tab-separated, 3,310 แถว) สำหรับทดสอบอัปโหลด
+    hr_sample.csv      ไฟล์ตัวอย่างขนาดเล็ก (comma-separated, 25 แถว)
 ```
 
 ## รันในเครื่องตัวเอง
@@ -35,20 +36,38 @@ python app.py
 
 เปิดเบราว์เซอร์ไปที่ `http://127.0.0.1:5000`
 
-ทดสอบอัปโหลดด้วยไฟล์ `data/sample_students.csv` หรือกดปุ่ม "โหลดข้อมูลตัวอย่าง" บนหน้าเว็บ
+ทดสอบอัปโหลดด้วยไฟล์ `data/HR_DATA.txt` (ของจริง, tab-separated) หรือ
+`data/hr_sample.csv` (ตัวอย่างเล็ก, comma-separated) หรือกดปุ่ม
+"โหลดข้อมูลตัวอย่าง" บนหน้าเว็บ
 
-## รูปแบบไฟล์ CSV ที่รองรับ
+## รูปแบบไฟล์ที่รองรับ
 
-คอลัมน์ (ใช้ภาษาไทยหรืออังกฤษก็ได้):
+รองรับทั้ง `.csv` (คั่นด้วยจุลภาค) และ `.tsv`/`.txt` (คั่นด้วย tab เช่นไฟล์
+export จากระบบ HR) ระบบจะตรวจจับตัวคั่นให้อัตโนมัติ
 
-| คอลัมน์ | ตัวอย่าง |
+คอลัมน์ที่รู้จัก (ใช้ชื่อคอลัมน์แบบเดิมจากไฟล์ export ได้เลย):
+
+| คอลัมน์ในไฟล์ | เก็บเป็น field |
 |---|---|
-| รหัสนักศึกษา | 641001 |
-| ชื่อ | สมชาย ใจดี |
-| คณะ | วิศวกรรมศาสตร์ |
-| สาขา | วิศวกรรมคอมพิวเตอร์ |
-| ชั้นปี | 2 |
-| เกรดเฉลี่ย | 3.45 |
+| Employee_Name | name |
+| EmpID | id |
+| Department | department |
+| Position | position |
+| ManagerName | manager |
+| EmploymentStatus | status |
+| Sex | sex |
+| MaritalDesc | marital_status |
+| RaceDesc | race |
+| State | state |
+| DateofHire | date_of_hire |
+| DateofTermination | date_of_termination |
+| PerformanceScore | performance |
+| EngagementSurvey | engagement |
+| EmpSatisfaction | satisfaction |
+| PayRate | pay_rate |
+| RecruitmentSource | recruitment_source |
+| SpecialProjectsCount | special_projects |
+| DaysLateLast30 | days_late |
 
 ## Deploy ขึ้น Vercel
 
