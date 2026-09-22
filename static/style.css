@@ -126,3 +126,5 @@ footer { text-align: center; font-size: 12px; color: #9a9484; padding: 26px 10px
   opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; z-index: 50; max-width: 90vw;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+
+.danger-btn{background:#b83b3b;color:#fff;border:0;padding:9px 13px;border-radius:7px;cursor:pointer}.danger-small{background:#b83b3b;color:#fff;border:0;padding:5px 9px;border-radius:5px;cursor:pointer}.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
