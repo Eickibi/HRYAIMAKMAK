@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ระบบแดชบอร์ดข้อมูลนักศึกษา</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <div class="crest">มก</div>
+    <div>
+      <h1>แดชบอร์ดข้อมูลนักศึกษา</h1>
+      <p>คณะเทคโนโลยีสารสนเทศ · Flask web application</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <button class="ghost-btn" id="sampleBtn" type="button">โหลดข้อมูลตัวอย่าง</button>
+    <button class="file-btn" id="uploadBtn" type="button">อัปโหลดไฟล์ CSV</button>
+    <input type="file" id="fileInput" accept=".csv">
+  </div>
+</header>
+
+<main>
+  <div class="stats" id="statsRow"></div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <h2>เกรดเฉลี่ยแยกตามชั้นปี</h2>
+      <div class="chart-wrap"><canvas id="gpaChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>จำนวนนักศึกษาแยกตามคณะ</h2>
+      <div class="faculty-bars" id="facultyBars"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>ตารางข้อมูลนักศึกษา</h2>
+    <div class="module-bar">
+      <select id="facultyFilter">
+        <option value="">ทุกคณะ</option>
+        {% for f in faculties %}<option value="{{ f }}">{{ f }}</option>{% endfor %}
+      </select>
+      <select id="yearFilter">
+        <option value="">ทุกชั้นปี</option>
+        {% for y in years %}<option value="{{ y }}">ปี {{ y }}</option>{% endfor %}
+      </select>
+      <input type="text" id="searchInput" placeholder="ค้นหาชื่อ หรือ รหัสนักศึกษา…">
+      <span class="count-tag" id="countTag">0 รายการ</span>
+    </div>
+    <div class="table-scroll">
+      <table class="data" id="dataTable">
+        <thead>
+          <tr>
+            <th>รหัสนักศึกษา</th><th>ชื่อ-นามสกุล</th><th>คณะ</th><th>สาขา</th><th>ชั้นปี</th><th>เกรดเฉลี่ย</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="empty" id="emptyState">
+        <div class="big">ยังไม่มีข้อมูล</div>
+        <div class="hint">อัปโหลดไฟล์ CSV หรือกดโหลดข้อมูลตัวอย่างเพื่อเริ่มต้น</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>รูปแบบไฟล์ที่รองรับ: CSV — คอลัมน์ รหัสนักศึกษา, ชื่อ, คณะ, สาขา, ชั้นปี, เกรดเฉลี่ย</footer>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
