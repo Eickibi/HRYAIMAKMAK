@@ -193,4 +193,6 @@ def api_employees():
 def api_sample():
     rows=generate_sample_data(); return jsonify({"ok":True,"count":len(rows)})
 
-if __name__=="__main__":\n    port = int(os.environ.get("PORT", "5000"))\n    app.run(host="0.0.0.0", port=port, debug=True)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", "5000"))
+    app.run(host="0.0.0.0", port=port, debug=True)
