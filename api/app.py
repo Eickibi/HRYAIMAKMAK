@@ -1,1 +1,4 @@
-"""Compatibility entrypoint for deployments that still point at api/app.py."""\nfrom app import app\n\n__all__ = ["app"]\n
+"""Compatibility entrypoint for deployments that still point at api/app.py."""
+from app import app
+
+__all__ = ["app"]
