@@ -6,21 +6,21 @@ import random
 
 from flask import Flask, render_template, request, jsonify
 
-app = Flask(__name__)
+# ระบุ template_folder และ static_folder ย้อนกลับไปยังโฟลเดอร์หลัก (Root Directory)
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, "templates"),
+    static_folder=os.path.join(BASE_DIR, "static"),
+)
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB upload limit
 
-# Vercel's serverless filesystem is read-only except /tmp, and /tmp is
-# wiped between cold starts. Locally we keep a real file under data/ so
-# uploaded data survives while you develop.
+# กำหนดที่เก็บข้อมูล
 if os.environ.get("VERCEL"):
     DATA_FILE = "/tmp/employees.json"
 else:
-    DATA_FILE = os.path.join(os.path.dirname(__file__), "data", "employees.json")
+    DATA_FILE = os.path.join(BASE_DIR, "data", "employees.json")
 
-# Maps the column names accepted in the uploaded file (matches the
-# HR_DATA.txt export: Employee_Name, EmpID, Department, Position, ...)
-# to our internal field names. Accepts either the original export headers
-# or a few friendlier aliases.
 FIELD_MAP = {
     "empid": "id", "id": "id",
     "employee_name": "name", "name": "name",
@@ -54,11 +54,59 @@ EMPTY_RECORD = {
 TERMINATED_STATUSES = {"Voluntarily Terminated", "Terminated for Cause"}
 
 
+def generate_sample_data():
+    """สร้างข้อมูลตัวอย่างเมื่อยังไม่มีไฟล์ข้อมูลอยู่"""
+    departments = {
+        "Sales": ["Area Sales Manager", "Sales Representative"],
+        "IT/IS": ["IT Support", "Database Administrator", "Network Engineer"],
+        "Production": ["Production Technician I", "Production Technician II", "Production Manager"],
+        "Software Engineering": ["Software Engineer", "Senior Software Engineer"],
+        "Admin Offices": ["Administrative Assistant", "Accountant"],
+        "Executive Office": ["CEO", "President & CEO"],
+    }
+    statuses = ["Active", "Active", "Active", "Voluntarily Terminated", "Terminated for Cause", "Leave of Absence"]
+    performances = ["Exceeds", "Fully Meets", "Fully Meets", "Needs Improvement", "PIP"]
+    first = ["James", "Maria", "Michael", "Susan", "Edward", "Hannah", "Jessica", "David", "Linda", "Robert"]
+    last = ["Gonzalez", "Cockel", "Bunbury", "Buck", "Jacobi", "Riordan", "Ferguson", "Stanley", "Monroe", "Smith"]
+    managers = ["Peter Monroe", "David Stanley", "John Smith", "Lynn Daneault", "Kissy Sullivan"]
+    sources = ["Employee Referral", "Billboard", "Social Networks - Facebook Twitter etc", "Diversity Job Fair"]
+
+    rows = []
+    for i in range(60):
+        dept = random.choice(list(departments.keys()))
+        rows.append({
+            "id": f"{1000000000 + i}",
+            "name": f"{random.choice(last)}, {random.choice(first)}",
+            "department": dept,
+            "position": random.choice(departments[dept]),
+            "manager": random.choice(managers),
+            "status": random.choice(statuses),
+            "sex": random.choice(["M", "F"]),
+            "marital_status": random.choice(["Single", "Married", "Divorced", "Separated"]),
+            "race": random.choice(["White", "Black or African American", "Asian", "Hispanic", "Two or more races"]),
+            "state": random.choice(["MA", "CT", "NH", "VA", "ND"]),
+            "date_of_hire": f"{random.randint(1,28):02d}-{random.randint(1,12):02d}-{random.randint(8,22):02d}",
+            "date_of_termination": "",
+            "performance": random.choice(performances),
+            "engagement": round(random.uniform(1.5, 5.0), 2),
+            "satisfaction": random.randint(1, 5),
+            "pay_rate": round(random.uniform(15, 80), 2),
+            "recruitment_source": random.choice(sources),
+            "special_projects": random.randint(0, 6),
+            "days_late": random.randint(0, 5),
+        })
+    save_employees(rows)
+    return rows
+
+
 def load_employees():
     if not os.path.exists(DATA_FILE):
-        return []
-    with open(DATA_FILE, encoding="utf-8") as f:
-        return json.load(f)
+        return generate_sample_data()
+    try:
+        with open(DATA_FILE, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return generate_sample_data()
 
 
 def save_employees(employees):
@@ -99,8 +147,6 @@ def normalize_row(row):
 
 
 def sniff_delimiter(sample):
-    """The original HR_DATA.txt export is tab-separated; plain .csv files
-    are comma-separated. Detect which one we got."""
     first_line = sample.splitlines()[0] if sample else ""
     return "\t" if first_line.count("\t") >= first_line.count(",") else ","
 
@@ -123,8 +169,6 @@ def index():
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    """Accepts a CSV/TSV file (e.g. HR_DATA.txt) and stores its rows as the
-    current dataset."""
     file = request.files.get("file")
     if not file or file.filename == "":
         return jsonify({"ok": False, "message": "ไม่พบไฟล์ที่อัปโหลด"}), 400
@@ -146,11 +190,6 @@ def upload():
 
 @app.route("/api/employees")
 def api_employees():
-    """Filter endpoint — this is the 'Module' filter from the dashboard.
-
-    Query params: department, status, performance, sex, q (search by name,
-    position, or manager)
-    """
     employees = load_employees()
     department = request.args.get("department", "").strip()
     status = request.args.get("status", "").strip()
@@ -211,48 +250,7 @@ def api_employees():
 
 @app.route("/api/sample", methods=["POST"])
 def api_sample():
-    """Generates sample HR data so the dashboard can be demoed without a file."""
-    departments = {
-        "Sales": ["Area Sales Manager", "Sales Representative"],
-        "IT/IS": ["IT Support", "Database Administrator", "Network Engineer"],
-        "Production": ["Production Technician I", "Production Technician II", "Production Manager"],
-        "Software Engineering": ["Software Engineer", "Senior Software Engineer"],
-        "Admin Offices": ["Administrative Assistant", "Accountant"],
-        "Executive Office": ["CEO", "President & CEO"],
-    }
-    statuses = ["Active", "Active", "Active", "Voluntarily Terminated", "Terminated for Cause", "Leave of Absence"]
-    performances = ["Exceeds", "Fully Meets", "Fully Meets", "Needs Improvement", "PIP"]
-    first = ["James", "Maria", "Michael", "Susan", "Edward", "Hannah", "Jessica", "David", "Linda", "Robert"]
-    last = ["Gonzalez", "Cockel", "Bunbury", "Buck", "Jacobi", "Riordan", "Ferguson", "Stanley", "Monroe", "Smith"]
-    managers = ["Peter Monroe", "David Stanley", "John Smith", "Lynn Daneault", "Kissy Sullivan"]
-    sources = ["Employee Referral", "Billboard", "Social Networks - Facebook Twitter etc", "Diversity Job Fair"]
-
-    rows = []
-    for i in range(60):
-        dept = random.choice(list(departments.keys()))
-        rows.append({
-            "id": f"{1000000000 + i}",
-            "name": f"{random.choice(last)}, {random.choice(first)}",
-            "department": dept,
-            "position": random.choice(departments[dept]),
-            "manager": random.choice(managers),
-            "status": random.choice(statuses),
-            "sex": random.choice(["M", "F"]),
-            "marital_status": random.choice(["Single", "Married", "Divorced", "Separated"]),
-            "race": random.choice(["White", "Black or African American", "Asian", "Hispanic", "Two or more races"]),
-            "state": random.choice(["MA", "CT", "NH", "VA", "ND"]),
-            "date_of_hire": f"{random.randint(1,28):02d}-{random.randint(1,12):02d}-{random.randint(8,22):02d}",
-            "date_of_termination": "",
-            "performance": random.choice(performances),
-            "engagement": round(random.uniform(1.5, 5.0), 2),
-            "satisfaction": random.randint(1, 5),
-            "pay_rate": round(random.uniform(15, 80), 2),
-            "recruitment_source": random.choice(sources),
-            "special_projects": random.randint(0, 6),
-            "days_late": random.randint(0, 5),
-        })
-
-    save_employees(rows)
+    rows = generate_sample_data()
     return jsonify({"ok": True, "count": len(rows)})
 
 
