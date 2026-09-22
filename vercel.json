@@ -1,1 +1,6 @@
-{\n  "version": 2,\n  "rewrites": [\n    { "source": "/(.*)", "destination": "/api/index.py" }\n  ]\n}\n
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index.py" }
+  ]
+}
