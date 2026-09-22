@@ -1,2 +1,1 @@
-Flask==3.0.3
-requests
+Flask==3.0.3\nrequests\ngunicorn\n
