@@ -7,18 +7,21 @@ import requests
 
 from flask import Flask, render_template, request, jsonify
 
-# ระบุ template_folder และ static_folder ย้อนกลับไปยังโฟลเดอร์หลัก (Root Directory)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(
     __name__,
     template_folder=os.path.join(BASE_DIR, "templates"),
     static_folder=os.path.join(BASE_DIR, "static"),
 )
-app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB upload limit
+app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
-DATA_FILE = os.path.join(BASE_DIR, "data", "employees.json")
+DATA_FILE = (
+    "/tmp/employees.json"
+    if os.environ.get("VERCEL")
+    else os.path.join(BASE_DIR, "data", "employees.json")
+)
 
 FIELD_MAP = {
     "empid": "id", "id": "id",
@@ -54,7 +57,6 @@ TERMINATED_STATUSES = {"Voluntarily Terminated", "Terminated for Cause"}
 
 
 def generate_sample_data():
-    """สร้างข้อมูลตัวอย่างเมื่อยังไม่มีไฟล์ข้อมูลอยู่"""
     departments = {
         "Sales": ["Area Sales Manager", "Sales Representative"],
         "IT/IS": ["IT Support", "Database Administrator", "Network Engineer"],
@@ -103,31 +105,49 @@ def db_enabled():
 
 
 def supabase_request(method, path, params=None, body=None):
-    headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}"}
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Content-Type": "application/json",
+    }
+    if method in {"POST", "PATCH", "PUT", "DELETE"}:
+        headers["Prefer"] = "return=minimal"
     url = f"{SUPABASE_URL}/rest/v1/{path}"
-    response = requests.request(method, url, params=params, json=body, headers=headers, timeout=15)
+    response = requests.request(
+        method, url, params=params, json=body, headers=headers, timeout=15
+    )
     response.raise_for_status()
     return response.json() if response.content else []
 
 
 def load_employees():
     if db_enabled():
-        return supabase_request("GET", "employees", {"select": "*", "order": "id"})
+        return supabase_request(
+            "GET", "employees", {"select": "*", "order": "id"}
+        )
+
     if not os.path.exists(DATA_FILE):
+        # Vercel has ephemeral /tmp storage. Start empty instead of
+        # trying to write into the deployed project directory.
+        if os.environ.get("VERCEL"):
+            return []
         return generate_sample_data()
+
     try:
         with open(DATA_FILE, encoding="utf-8") as f:
             return json.load(f)
     except Exception:
-        return generate_sample_data()
+        return [] if os.environ.get("VERCEL") else generate_sample_data()
 
 
 def save_employees(employees):
     if db_enabled():
+        # Simple replace-all sync for this small dashboard.
         supabase_request("DELETE", "employees", {"id": "not.is.null"})
         if employees:
             supabase_request("POST", "employees", body=employees)
         return
+
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(employees, f, ensure_ascii=False, indent=2)
@@ -171,7 +191,6 @@ def sniff_delimiter(sample):
 
 @app.route("/")
 def index():
-    """Dashboard page."""
     employees = load_employees()
     departments = sorted({e["department"] for e in employees if e["department"]})
     statuses = sorted({e["status"] for e in employees if e["status"]})
@@ -263,7 +282,6 @@ def api_employees():
         return True
 
     filtered = [e for e in employees if matches(e)]
-
     total = len(employees)
     active = sum(1 for e in employees if e["status"] == "Active")
     terminated = sum(1 for e in employees if e["status"] in TERMINATED_STATUSES)
