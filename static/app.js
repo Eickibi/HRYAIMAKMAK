@@ -151,6 +151,7 @@
         "<td>" + (e.engagement ? Number(e.engagement).toFixed(2) : "—") + "</td>" +
         "<td>" + payDisplay + "</td>" +
         "<td>" + escapeHtml(e.date_of_hire) + "</td>" +
+        "<td><button class=\"danger-small\" onclick=\"deleteEmployee(\'" + escapeHtml(e.id) + "\')\">ลบ</button></td>" +
         "</tr>";
     }).join("");
   }
@@ -217,6 +218,26 @@
   document.getElementById("performanceFilter").addEventListener("change", refresh);
   document.getElementById("sexFilter").addEventListener("change", refresh);
   document.getElementById("searchInput").addEventListener("input", refresh);
+
+  window.deleteEmployee = function(id) {
+    if (!confirm("ต้องการลบข้อมูลพนักงานคนนี้ใช่หรือไม่?")) return;
+    fetch("/api/employees/" + encodeURIComponent(id), {method:"DELETE"})
+      .then(r=>r.json()).then(res=>{ if(!res.ok) throw new Error(res.message); showToast("ลบข้อมูลแล้ว"); refresh(); })
+      .catch(e=>showToast(e.message || "ลบข้อมูลไม่สำเร็จ"));
+  };
+  document.getElementById("addBtn").addEventListener("click", function(){ document.getElementById("employeeModal").style.display="flex"; });
+  document.getElementById("cancelAddBtn").addEventListener("click", function(){ document.getElementById("employeeModal").style.display="none"; });
+  document.getElementById("employeeForm").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var obj={}; new FormData(ev.target).forEach(function(v,k){obj[k]=v;});
+    fetch("/api/employees",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(obj)})
+      .then(r=>r.json()).then(res=>{if(!res.ok) throw new Error(res.message); document.getElementById("employeeModal").style.display="none"; ev.target.reset(); showToast("เพิ่มพนักงานแล้ว"); refresh();})
+      .catch(e=>showToast(e.message || "เพิ่มข้อมูลไม่สำเร็จ"));
+  });
+  document.getElementById("deleteAllBtn").addEventListener("click", function(){
+    if(!confirm("ลบข้อมูลพนักงานทั้งหมดใช่หรือไม่? การกระทำนี้ย้อนกลับไม่ได้")) return;
+    fetch("/api/employees",{method:"DELETE"}).then(r=>r.json()).then(()=>{showToast("ลบข้อมูลทั้งหมดแล้ว");refresh();}).catch(()=>showToast("ลบข้อมูลไม่สำเร็จ"));
+  });
 
   refresh();
 })();
