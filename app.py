@@ -3,6 +3,7 @@ import io
 import json
 import os
 import random
+import requests
 
 from flask import Flask, render_template, request, jsonify
 
@@ -15,11 +16,9 @@ app = Flask(
 )
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB upload limit
 
-# กำหนดที่เก็บข้อมูล
-if os.environ.get("VERCEL"):
-    DATA_FILE = "/tmp/employees.json"
-else:
-    DATA_FILE = os.path.join(BASE_DIR, "data", "employees.json")
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
+DATA_FILE = os.path.join(BASE_DIR, "data", "employees.json")
 
 FIELD_MAP = {
     "empid": "id", "id": "id",
@@ -99,7 +98,21 @@ def generate_sample_data():
     return rows
 
 
+def db_enabled():
+    return bool(SUPABASE_URL and SUPABASE_KEY)
+
+
+def supabase_request(method, path, params=None, body=None):
+    headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}"}
+    url = f"{SUPABASE_URL}/rest/v1/{path}"
+    response = requests.request(method, url, params=params, json=body, headers=headers, timeout=15)
+    response.raise_for_status()
+    return response.json() if response.content else []
+
+
 def load_employees():
+    if db_enabled():
+        return supabase_request("GET", "employees", {"select": "*", "order": "id"})
     if not os.path.exists(DATA_FILE):
         return generate_sample_data()
     try:
@@ -110,6 +123,11 @@ def load_employees():
 
 
 def save_employees(employees):
+    if db_enabled():
+        supabase_request("DELETE", "employees", {"id": "not.is.null"})
+        if employees:
+            supabase_request("POST", "employees", body=employees)
+        return
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(employees, f, ensure_ascii=False, indent=2)
