@@ -157,12 +157,24 @@ def upload():
 def api_employees():
     employees=load_employees()
     department=request.args.get("department","").strip(); status=request.args.get("status","").strip()
-    performance=request.args.get("performance","").strip(); sex=request.args.get("sex","").strip(); q=request.args.get("q","").strip().lower()
+    performance=request.args.get("performance","").strip(); sex=request.args.get("sex","").strip(); q=request.args.get("q","").strip().lower(); salary_min=request.args.get("salary_min","").strip(); salary_max=request.args.get("salary_max","").strip(); engagement_min=request.args.get("engagement_min","").strip(); engagement_max=request.args.get("engagement_max","").strip()
+    try: salary_min=float(salary_min) if salary_min else None
+    except ValueError: salary_min=None
+    try: salary_max=float(salary_max) if salary_max else None
+    except ValueError: salary_max=None
+    try: engagement_min=float(engagement_min) if engagement_min else None
+    except ValueError: engagement_min=None
+    try: engagement_max=float(engagement_max) if engagement_max else None
+    except ValueError: engagement_max=None
     def matches(e):
         if department and e["department"]!=department:return False
         if status and e["status"]!=status:return False
         if performance and e["performance"]!=performance:return False
         if sex and e["sex"]!=sex:return False
+        if salary_min is not None and e["pay_rate"] < salary_min:return False
+        if salary_max is not None and e["pay_rate"] > salary_max:return False
+        if engagement_min is not None and e["engagement"] < engagement_min:return False
+        if engagement_max is not None and e["engagement"] > engagement_max:return False
         if q and q not in " ".join([e["name"],e["position"],e["manager"]]).lower():return False
         return True
     filtered=[e for e in employees if matches(e)]; total=len(employees)
