@@ -13,7 +13,7 @@ app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
-DATA_FILE = os.path.join(BASE_DIR, "data", "employees.json")
+DATA_FILE = "/tmp/employees.json" if os.environ.get("VERCEL") else os.path.join(BASE_DIR, "data", "employees.json")
 
 FIELD_MAP = {
     "empid":"id","id":"id","employee_name":"name","name":"name","department":"department","dept":"department",
